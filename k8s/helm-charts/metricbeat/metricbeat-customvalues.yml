@@ -68,7 +68,8 @@ daemonset:
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
       setup.kibana:
-        host: "http://quickstart-kb-http:5601"
+        host: "https://quickstart-kb-http:5601"
+        ssl.verification_mode: "none"
         setup.kibana.ssl.verification_mode: "none"
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
@@ -123,7 +124,8 @@ deployment:
          username: ${ELASTICSEARCH_USERNAME}
          password: ${ELASTICSEARCH_PASSWORD}
       setup.kibana:
-        host: "http://quickstart-kb-http:5601"
+        host: "https://quickstart-kb-http:5601"
+        ssl.verification_mode: "none"
         setup.kibana.ssl.verification_mode: "none"
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
