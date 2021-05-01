@@ -28,6 +28,7 @@ daemonset:
           - pod
           - system
           - volume
+          - container
         period: 2s
         host: "${NODE_NAME}"
         hosts: ["https://${NODE_NAME}:10250"]
@@ -61,6 +62,8 @@ daemonset:
         - drop_event.when.regexp:
             system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
       output.elasticsearch:
+        protocol: https
+        ssl.verification_mode: "none"
         hosts: ['quickstart-es-default:9200']
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
@@ -86,13 +89,13 @@ deployment:
   enabled: true
   # Extra environment variables for Metricbeat container.
   envFrom: []
-  extraEnvs: 
+  extraEnvs:
     - name: 'ELASTICSEARCH_USERNAME'
       value: elastic
     - name: 'ELASTICSEARCH_PASSWORD'
-      value: j2Y7Q52XwFF9uPY2B3p051go
+      value: 7yi8noCQ00L42E7Whz2dPk22
     - name: 'ELASTICSEARCH_HOST'
-      value: elsmonitor-es-http.default.svc.cluster.local
+      value: quickstart-es-default
     - name: 'ELASTICSEARCH_PORT'
       value: "9200"
     - name: NODE_NAME
@@ -114,6 +117,8 @@ deployment:
         period: 5s
         hosts: ["${KUBE_STATE_METRICS_HOSTS}"]
       output.elasticsearch:
+         protocol: https
+         ssl.verification_mode: "none"
          hosts: ['quickstart-es-default:9200']
          username: ${ELASTICSEARCH_USERNAME}
          password: ${ELASTICSEARCH_PASSWORD}
@@ -179,7 +184,9 @@ managedServiceAccount: true
 clusterRoleRules:
 - apiGroups: [""]
   resources:
+  - deployments
   - nodes
+  - nodes/stats
   - namespaces
   - events
   - pods
