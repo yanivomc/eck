@@ -61,11 +61,11 @@ daemonset:
         - drop_event.when.regexp:
             system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
       output.elasticsearch:
-        hosts: ['elsmonitor-es-http.default.svc.cluster.local:9200']
+        hosts: ['quickstart-es-default:9200']
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
       setup.kibana:
-        host: "http://kibmonitor-kb-http.default.svc.cluster.local:5601"
+        host: "http://quickstart-kb-http:5601"
         setup.kibana.ssl.verification_mode: "none"
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
@@ -114,11 +114,11 @@ deployment:
         period: 5s
         hosts: ["${KUBE_STATE_METRICS_HOSTS}"]
       output.elasticsearch:
-         hosts: ['elsmonitor-es-http.default.svc.cluster.local:9200']
+         hosts: ['quickstart-es-default:9200']
          username: ${ELASTICSEARCH_USERNAME}
          password: ${ELASTICSEARCH_PASSWORD}
       setup.kibana:
-        host: "http://kibmonitor-kb-http.default.svc.cluster.local:5601"
+        host: "http://quickstart-kb-http:5601"
         setup.kibana.ssl.verification_mode: "none"
         username: ${ELASTICSEARCH_USERNAME}
         password: ${ELASTICSEARCH_PASSWORD}
