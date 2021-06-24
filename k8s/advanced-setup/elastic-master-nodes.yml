@@ -1,0 +1,108 @@
+
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: production-eck
+spec:
+  version: 7.13.2
+  volumeClaimDeletePolicy: DeleteOnScaledownAndClusterDeletion
+  updateStrategy:
+    changeBudget:
+      maxSurge: 2
+      maxUnavailable: 1
+  http:
+    service:
+      spec:
+        type: ClusterIP
+        ports:
+          - port: 9200
+            targetPort: 9200
+            protocol: TCP
+  nodeSets:
+    - name: eck-master
+      count: 3
+      volumeClaimTemplates:
+            - metadata:
+                name: elasticsearch-master
+              spec:
+                accessModes:
+                - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 50Gi
+               # storageClassName: longhorn make sure to have storage class configured!!!!!
+      config:
+        node.master: true
+        node.data: false
+        node.ingest: false
+      podTemplate:
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: elastic
+                    operator: In
+                    values:
+                    - schedulled
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 1
+                  preference:
+                    matchExpressions:
+                    - key: performance
+                      operator: In
+                      values:
+                      - high
+          initContainers:
+          - name: sysctl
+            securityContext:
+              privileged: true
+            command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+          containers:
+              - name: elasticsearch
+                env:
+                  - name: ES_JAVA_OPTS
+                    value: -Xms500m -Xmx500m
+                resources:
+                  limits:
+                    memory: 16Gi
+                    cpu: 2
+    - name: ingest-data
+      count: 3
+      volumeClaimTemplates:
+            - metadata:
+                name: elasticsearch-data
+              spec:
+                accessModes:
+                - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 300Gi
+                # storageClassName: local-storage - using default longhorn!       
+      config:
+        node.roles: ["data", "ingest"]
+      podTemplate:
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: elastic
+                    operator: In
+                    values:
+                    - schedulled
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 1
+                  preference:
+                    matchExpressions:
+                    - key: performance
+                      operator: In
+                      values:
+                      - high
+    - name: coordinating
+      count: 3
+      config:
+        node.roles: []
