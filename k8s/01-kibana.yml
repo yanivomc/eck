@@ -7,7 +7,6 @@ spec:
   count: 1
   elasticsearchRef:
     name: "quickstart"
-    serviceName: quickstart-es-http     
   podTemplate:
     spec:
       containers:
